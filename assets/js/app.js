@@ -23,6 +23,28 @@ var svg = d3.select("body")
   .attr("height", svgHeight)
   .attr("width", svgWidth);
 
+//Append the x and y axis labels to the svg
+//Using code from stack overflow https://stackoverflow.com/questions/11189284/d3-axis-labeling
+
+//x axis label
+svg.append("text")
+    .attr("class", "x label")
+    .attr("text-anchor", "end")
+    .attr("x", svgWidth-400)
+    .attr("y", svgHeight - 6)
+    .text("In Poverty (%)");
+
+//y axis label
+svg.append("text")
+    .attr("class", "y label")
+    .attr("text-anchor", "end")
+    .attr("x", -300)
+    .attr("y", 6)
+    .attr("dy", ".75em")
+    .attr("transform", "rotate(-90)")
+    .text("Lacks Healthcare (%)");
+
+
 // Append a group to the SVG area and shift ('translate') it to the right and to the bottom
 var chartGroup = svg.append("g")
   .attr("transform", `translate(${chartMargin.left}, ${chartMargin.top})`);
@@ -68,16 +90,34 @@ d3.csv("assets/data/data.csv").then(function(data){
     chartGroup.append("g")
         .attr("transform", `translate(0, ${chartHeight})`)
         .call(bottomAxis);
+
+    //Code from stack overflow to add text to the circles
+    // Link to code https://stackoverflow.com/questions/36954426/adding-label-on-a-d3-scatter-plot-circles
+    var gdots =  svg.selectAll("g.dot")
+            .data(data)
+            .enter().append('g');
+
+    gdots.append("circle")
+            .attr("class", "dot")
+            .attr("r", 6.0)
+            .attr("cx", function (d) {
+                return xLinearScale(d.poverty);
+            })
+            .attr("cy", function (d) {
+                return yLinearScale(d.healthcare);
+            })
+            .style("fill", "#50C2E3")
+
+    gdots.append("text").text(function(d){
+                    return d.abbr;
+                })
+                .attr("x", function (d) {
+                    return xLinearScale(d.poverty);
+                })
+                .attr("y", function (d) {
+                    return yLinearScale(d.healthcare);
+                });
     
-    //Add the scatter dots
-    chartGroup.selectAll("#scatter")
-        .data(data)
-        .enter().append("circle")
-        .attr("class", "dot")
-        .attr("cx", d => xLinearScale(d.poverty))
-        .attr("cy", d => yLinearScale(d.healthcare))
-        .attr("r", 6.0)
-        .style("fill", "#69b3a2")
 
 
 
